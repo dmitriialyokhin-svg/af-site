@@ -95,16 +95,37 @@ const SideRays = ({
   // Scroll tracking — shifts rayPos.y vertically via iScrollOffset uniform
   useEffect(() => {
     if (!followScroll) return;
+
+    // On mobile, window.innerHeight changes as the browser chrome shows/hides.
+    // Cache it and only refresh on resize to avoid jumps during scroll.
+    let stableViewH = window.visualViewport
+      ? window.visualViewport.height
+      : window.innerHeight;
+
+    const updateViewH = () => {
+      stableViewH = window.visualViewport
+        ? window.visualViewport.height
+        : window.innerHeight;
+    };
+
     const onScroll = () => {
       if (!uniformsRef.current) return;
-      // Normalise scrollY to viewport height (0 = top, 1 = scrolled one full screen).
-      // In the shader: rayPos.y += iScrollOffset * iResolution.y
-      // This is device-pixel-independent since iResolution already includes dpr.
-      const viewH = window.innerHeight;
-      uniformsRef.current.iScrollOffset.value = (window.scrollY / viewH) * scrollSpeed;
+      uniformsRef.current.iScrollOffset.value = (window.scrollY / stableViewH) * scrollSpeed;
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', updateViewH, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateViewH);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', updateViewH);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateViewH);
+      }
+    };
   }, [followScroll, scrollSpeed]);
 
   useEffect(() => {
