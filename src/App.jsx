@@ -116,6 +116,8 @@ export default function App() {
           opacity={1.0}
           followMouse={true}
           mouseTiltRange={12}
+          followScroll={true}
+          scrollSpeed={0}
           publishRef={publishRef}
         />
       </div>

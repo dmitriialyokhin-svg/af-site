@@ -32,6 +32,8 @@ const SideRays = ({
   className      = '',
   followMouse    = false,
   mouseTiltRange = 25,
+  followScroll   = false,
+  scrollSpeed    = 0.4,
   // optional ref from useSideRaysProvider — call .current(tiltValue) to broadcast
   publishRef,
 }) => {
@@ -90,8 +92,22 @@ const SideRays = ({
     };
   }, [followMouse, mouseTiltRange, publishRef]);
 
+  // Scroll tracking — shifts rayPos.y vertically via iScrollOffset uniform
   useEffect(() => {
-    if (!isVisible || !containerRef.current) return;
+    if (!followScroll) return;
+    const onScroll = () => {
+      if (!uniformsRef.current) return;
+      // Normalise scrollY to viewport height (0 = top, 1 = scrolled one full screen).
+      // In the shader: rayPos.y += iScrollOffset * iResolution.y
+      // This is device-pixel-independent since iResolution already includes dpr.
+      const viewH = window.innerHeight;
+      uniformsRef.current.iScrollOffset.value = (window.scrollY / viewH) * scrollSpeed;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [followScroll, scrollSpeed]);
+
+  useEffect(() => {
     if (cleanupFunctionRef.current) {
       cleanupFunctionRef.current();
       cleanupFunctionRef.current = null;
@@ -135,6 +151,7 @@ uniform float iSaturation;
 uniform float iBlend;
 uniform float iFalloff;
 uniform float iOpacity;
+uniform float iScrollOffset;
 
 float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord, float seedA, float seedB, float speed) {
   vec2  sourceToCoord = coord - raySource;
@@ -152,7 +169,7 @@ void main() {
   if (iFlipY > 0.5) fragCoord.y = iResolution.y - fragCoord.y;
 
   vec2 coord  = vec2(fragCoord.x, iResolution.y - fragCoord.y);
-  vec2 rayPos = vec2(iResolution.x * 1.1, -0.5 * iResolution.y);
+  vec2 rayPos = vec2(iResolution.x * 1.1, -0.5 * iResolution.y + iScrollOffset * iResolution.y);
 
   float tiltRad    = iTilt * 3.14159265 / 180.0;
   float cs         = cos(tiltRad);
@@ -180,20 +197,21 @@ void main() {
 
       const [flipX, flipY] = originToFlip(origin);
       const uniforms = {
-        iTime:       { value: 0 },
-        iResolution: { value: [1, 1] },
-        iSpeed:      { value: speed },
-        iRayColor1:  { value: hexToRgb(rayColor1) },
-        iRayColor2:  { value: hexToRgb(rayColor2) },
-        iIntensity:  { value: intensity },
-        iSpread:     { value: spread },
-        iFlipX:      { value: flipX },
-        iFlipY:      { value: flipY },
-        iTilt:       { value: tilt },
-        iSaturation: { value: saturation },
-        iBlend:      { value: blend },
-        iFalloff:    { value: falloff },
-        iOpacity:    { value: opacity }
+        iTime:         { value: 0 },
+        iResolution:   { value: [1, 1] },
+        iSpeed:        { value: speed },
+        iRayColor1:    { value: hexToRgb(rayColor1) },
+        iRayColor2:    { value: hexToRgb(rayColor2) },
+        iIntensity:    { value: intensity },
+        iSpread:       { value: spread },
+        iFlipX:        { value: flipX },
+        iFlipY:        { value: flipY },
+        iTilt:         { value: tilt },
+        iSaturation:   { value: saturation },
+        iBlend:        { value: blend },
+        iFalloff:      { value: falloff },
+        iOpacity:      { value: opacity },
+        iScrollOffset: { value: 0 },
       };
       uniformsRef.current = uniforms;
 
