@@ -1,0 +1,54 @@
+/* ── Reset & tokens ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #09090b;          /* near-black */
+  --surface:   #111113;          /* card surface */
+  --surface-2: #1a1a1e;          /* slightly lifted */
+  --border:    #2a2a2e;          /* subtle silver border */
+  --border-hi: #3e3c38;          /* warm silver on hover */
+  --text:      #8a8784;          /* warm silver text */
+  --text-h:    #e8e4dc;          /* warm white headings */
+  --gold:      #b0aea8;          /* silver accent (was gold) */
+  --gold-dim:  #4a4a4e;          /* dim silver for subtle uses */
+  --silver:    #d4d2cc;          /* bright silver */
+  --radius:    10px;
+  --font:      'Inter', system-ui, sans-serif;
+
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+/* ── Matte surface noise overlay ────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-repeat: repeat;
+  mix-blend-mode: soft-light;
+  animation: matte-breathe 6s ease-in-out infinite alternate;
+}
+
+@keyframes matte-breathe {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 1.0; }
+  100% { opacity: 0.5; }
+}
+
+h1, h2, h3 {
+  font-weight: 500;
+  color: var(--text-h);
+  letter-spacing: -0.02em;
+}

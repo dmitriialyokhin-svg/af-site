@@ -1,0 +1,22 @@
+.dock-panel {
+  display: flex;
+  overflow: visible;
+}
+
+.dock-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  overflow: visible;
+}
+
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  outline: none;
+  transform-origin: center bottom;
+}

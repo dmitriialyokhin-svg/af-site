@@ -1,0 +1,54 @@
+.card-spotlight {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --spotlight-color: rgba(255, 255, 255, 0.12);
+  --passive-x: 50%;
+  --passive-y: 15%;
+}
+
+/* Active mouse-driven spotlight */
+.card-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--mouse-x) var(--mouse-y),
+    var(--spotlight-color),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.card-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Passive SideRays-driven spotlight — always on, softer */
+.card-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse 80% 60% at var(--passive-x) var(--passive-y),
+    var(--spotlight-color),
+    transparent 75%
+  );
+  opacity: 1;
+  pointer-events: none;
+  z-index: 2;
+  transition: none;
+}
+
+/* Hide passive spotlight while mouse is hovering — active one takes over */
+.card-spotlight:hover::after {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
