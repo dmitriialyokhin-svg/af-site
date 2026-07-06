@@ -56,7 +56,7 @@ function ScrollToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Scroll to top"
     >
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 18 18" fill="none" aria-hidden="true">
         <path d="M9 14V4M4 9l5-5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </button>
